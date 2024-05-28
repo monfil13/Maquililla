@@ -1,0 +1,76 @@
+HABILITAR SERVIDOR WEB DE UN CRUD DE MÁQUILA
+*Enlaces de Apoyo
+https://www.youtube.com/watch?v=S_nTrTCWK5E&t=0s
+https://www.youtube.com/watch?v=UbTIGJCk5CY
+
+*Enlace de repositorio:
+https://github.com/monfil13/Maquililla.git
+
+*Instalar VirtualBox, imagen ISO de ubuntu-server y putty (para mejorar la interacción con el CMD del sistema servidor)
+*Configurar espacio de máquina virtual (vm) y colocar adaptador puente en red.
+
+*****Configuración de Red*****
+*Sí se puede colocar la IP estática desde un inicio IPv4 (en este caso se está conectado por la red 192.168.1.75; asignamos la dirección 192.168.1.81 a enp0s3 de UbuntuServer con 255.255.255.0 o /24 y la puerta de enlace 192.168.1.254 (con DNS 8.8.8.8 y 8.8.4.4)
+*Si no se realizó esto, editar el archivo con: sudo nano /etc/netplan/00-installer-config.yaml (verificar la siguiente indexación)
+network:
+  ethernets:
+    enp0s3:
+      dhcp4: no
+      addresses: [192.168.1.81/24]
+      gateway4: 192.168.1.254
+      nameservers:
+        addresses: [192.168.1.81, 8.8.8.8]
+  version: 2
+*Aplicar cambios con sudo netplan apply o sudo netplan try
+*Verificar con ip a
+
+-----------------------------------------------------------------------------------------------
+
+*****Instalaciones y Configuraciones*****
+*Actualizar con sudo apt update y upgrade
+*Instalaciones de apache2, mysql-server, php y phpmyadmin
+-sudo apt install apache2
+-sudo apt install mysql-server
+-sudo apt install php libapache2-mod-php php-mysql
+-sudo apt install phpmyadmin (seleccionar servicio apache2 y establecer contraseña 123root, la cuál será una contraseña temporal)
+
+*Verificar su estado con: sudo systemctl status (nombre del servicio)
+*Para seguridad de base de datos: sudo mysql_secure_installation (opcional)
+*Acceder a mysql con: sudo mysql -u root -p
+*Editar usuario y contraseña con: alter user 'root'@'localhost' identified with mysql_native_password by '123.Root';
+*FLUSH PRIVILEGES;
+*Reiniciar y habilitar el permiso de URL's con:
+-sudo a2enmod rewrite
+-sudo systemctl restart apache2
+*Clonar el repositorio con: sudo git clone https://github.com/monfil13/Maquililla.git
+*Mover hacia la carpeta web con: sudo mv Maquililla /var/www/html/
+*Navegar y cambiar permisos de directorio con:
+-cd /var/www/html/
+-sudo chown -R www-data Maquililla
+
+*****Creación de BD*****
+*Navegar y configurar la base de datos o archivo database.php
+-cd Maquililla
+-sudo nano database.php
+*Modificar la siguiente línea: $mysqli = new mysqli('localhost', 'root', '123.Root', 'maquila');
+-OJO: los dos últimos datos hacen referencia a la contraseña y a la base de datos con las que se trabajarán
+*Abrir phpmyadmin con: 192.168.1.81/phpmyadmin (accediendo con la contraseña de 123.Root)
+*Crear la bd (con el archivo prendas.sql que está en el repo :) oooo...
+*Acceder a phpmyadmin con IP seguido de /phpmyadmin
+*En estructura, colocar lo siguiente:
+
+CREATE DATABASE IF NOT EXISTS maquila;
+
+USE maquila;
+
+CREATE TABLE IF NOT EXISTS prendas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombrePrenda VARCHAR(255) NOT NULL,
+    colorPrenda ENUM('amarillo', 'azul', 'rojo', 'verde', 'blanco', 'negro') NOT NULL,
+    precio DECIMAL(8,2) NOT NULL
+);
+
+*Guardar cambios y cerrar sesión (puerta con flecha verde debajo del logo)
+*Comenzar a ejecutar el sitio web con: 192.168.1.81/Maquililla/index.php.
+
+***** ¡ GRACIAS POR SU ATENCIÓN, BUEN DÍA :) ! *****

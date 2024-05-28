@@ -1,5 +1,5 @@
 <?php
-$mysqli = new mysqli('localhost', 'root', '123root', 'maquila');
+$mysqli = new mysqli('localhost', 'root', '123.Root', 'maquila');
 
 if ($mysqli->connect_error) {
     die('Connect Error (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
